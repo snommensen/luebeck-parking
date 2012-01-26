@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-    var host = "localhost";
+    var host = "solaris.local";
     var port = 8080;
 
     function calculateOccupation(parking) {

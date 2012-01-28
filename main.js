@@ -1,7 +1,7 @@
 var path = require("path");
 var util = require("util");
-//var url = require("url");
-//var _ = require("underscore");
+var async = require("async");
+var _ = require("underscore");
 var modules_dir = "modules";
 var scraper = require(path.join(__dirname, modules_dir, "scraper"));
 var history = require(path.join(__dirname, modules_dir, "history"));
@@ -17,6 +17,8 @@ function onScrape() {
         if (typeof result !== "undefined" && result !== null) {
             _data = result;
             util.log("#" + _data.current.parkings.length + " parkings returned.");
+            // Send data to connected clients via socket.io
+            updateClients();
         }
     });
 }
@@ -25,7 +27,7 @@ function onHistory() {
     var parkings = _data.current.parkings;
     if (typeof parkings !== "undefined" && parkings !== null) {
         history.storeHistory(parkings, function () {
-            util.log("#" + _data.current.parkings.length + " parkings historized.");
+            util.log("#" + parkings.length + " parkings historized.");
         });
     }
 }
@@ -76,22 +78,6 @@ app.get("/json/current", function (req, res) {
         res.send("Derzeit keine Daten verf&uuml;gbar.", 404);
     }
     else {
-//        res.writeHead(200, {
-//            'content-type': 'text/json',
-//            'Access-Control-Allow-Origin': '*',
-//            'Access-Control-Allow-Headers' : 'x-requested-with'
-//        });
-//        var params = url.parse(req.url, true).query;
-//        if (typeof params.callback !== "undefined" && params.callback !== null) {
-//            res.write(params.callback + JSON.stringify(_data));
-//        }
-//        else if (typeof params.field !== "undefined" && params.field !== null) {
-//            res.write("var " + params.field + "= " + JSON.stringify(_data));
-//        }
-//        else {
-//            res.write(JSON.stringify(_data));
-//        }
-//        res.end("\n");
         res.json(_data);
     }
     console.timeEnd("Delivered: /json/current");
@@ -120,3 +106,32 @@ app.get("/json/history/:name", function (req, res) {
 app.listen(port, host);
 
 util.log("Server running: http://" + host + ":" + port + "/");
+
+// ----------------------------------------------------------------------------
+
+var socket = require("socket.io");
+var io = socket.listen(app);
+
+/*
+ * Manage web-socket connections.
+ */
+connectedClients = [];
+
+io.sockets.on("connection", function (client) {
+    console.log(client.id + " connected");
+    connectedClients.push(client);
+
+    client.on("disconnect", function () {
+        connectedClients = _.without(connectedClients, client);
+        console.log("Disconnected");
+    });
+});
+
+function updateClients() {
+    _.each(connectedClients, function (client) {
+        console.log("Emit to client: " + client.id);
+        client.emit("current", JSON.stringify(_data));
+    });
+}
+
+// ----------------------------------------------------------------------------

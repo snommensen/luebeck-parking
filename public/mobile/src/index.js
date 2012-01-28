@@ -12,6 +12,7 @@ $(document).ready(function () {
         var current = data.current;
         if (!current.hasOwnProperty("parkings")) return;
         var parkings = current.parkings;
+        $('#parkings').empty();
         for (var i = 0; i < parkings.length; ++i) {
             $('#parkings').append('<li><a href="#">'
                 + '<div class="free" style="float:right;margin-right:15px;"><div class="occupied" style="width: '

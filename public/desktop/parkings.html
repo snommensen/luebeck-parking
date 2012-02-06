@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parkpl&auml;tze und Parkh&auml;user in L&uuml;beck</title>
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+    <style type="text/css">
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+
+        #map_canvas {
+            width: 100%;
+            height: 525px;
+        }
+
+        img {
+            max-width: none;
+        }
+    </style>
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyA65Lvtdxl8XNxrlQuPjLGLtR16fjj9Nqg&sensor=true">
+    </script>
+    <script type="text/javascript">
+        function initialize() {
+            var myOptions = {
+                center:new google.maps.LatLng(53.867814, 10.687208),
+                zoom:14,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            };
+            var map = new google.maps.Map(document.getElementById("map_canvas"),
+                    myOptions);
+        }
+    </script>
+</head>
+
+<body onload="initialize()">
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="index.html">L&uuml;beck Parking</a>
+
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class="active"><a href="index.html">Home</a></li>
+                    <li><a href="#about">&Uuml;ber</a></li>
+                    <li><a href="#contact">Kontakt</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="page-header">
+        <h1>Parkpl&auml;tze und Parkh&auml;user
+            <small>in L&uuml;beck</small>
+        </h1>
+    </div>
+
+    <div class="row">
+        <div class="span12">
+            <div id="map_canvas"></div>
+        </div>
+    </div>
+
+    <footer>
+        <!--p>&copy; Universit&auml;t zu L&uuml;beck 2012</p-->
+    </footer>
+
+</div>
+<!-- /container -->
+
+</body>
+</html>
+

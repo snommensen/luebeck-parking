@@ -2,82 +2,56 @@
 <html>
 <head>
     <title>Parkplatzbelegung Historie</title>
-    <style type="text/css">
+    <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+    <style>
         body {
-            font-family: Helvetica, Arial, sans-serif;
-            margin: 50px;
+            padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
         }
 
         #reset {
             float: right;
         }
-
-        body {
-            padding-top: 80px; /* 40px to make the container go all the way to the bottom of the topbar */
-        }
-
-        .container > footer p {
-            text-align: center; /* center align it with the container */
-        }
-
-        .container {
-            width: 820px; /* downsize our container to make the content feel a bit tighter and more cohesive. NOTE: this removes two full columns from the grid, meaning you only go to 14 columns and not 16. */
-        }
-
-            /* The white background content wrapper */
-        .content {
-            background-color: #fff;
-            padding: 20px;
-            margin: 0 -20px; /* negative indent the amount of the padding to maintain the grid system */
-            -webkit-border-radius: 0 0 6px 6px;
-            -moz-border-radius: 0 0 6px 6px;
-            border-radius: 0 0 6px 6px;
-            -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
-            -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, .15);
-        }
-
-            /* Page header tweaks */
-        .page-header {
-            background-color: #f5f5f5;
-            padding: 20px 20px 10px;
-            margin: 20px -20px 20px;
-        }
-
-        .row {
-            padding: 20px;
-        }
-
     </style>
-    <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
 
-<div class="topbar">
-    <div class="fill">
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
         <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
             <a class="brand" href="index.html">L&uuml;beck Parking</a>
-            <ul class="nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#about">&Uuml;ber</a></li>
-                <li><a href="#contact">Kontakt</a></li>
-            </ul>
+
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class="active"><a href="index.html">Home</a></li>
+                    <li><a href="#about">&Uuml;ber</a></li>
+                    <li><a href="#contact">Kontakt</a></li>
+                </ul>
+            </div>
+            <!--/.nav-collapse -->
         </div>
     </div>
 </div>
 
 <div class="container">
 
-    <div class="content">
-        <div class="page-header">
-            <h1>Parkplatzbelegung
-                <small>in L&uuml;beck</small>
-            </h1>
-        </div>
-        <div class="row">
+    <div class="page-header">
+        <h1>Parkplatzbelegung
+            <small>Historie</small>
+        </h1>
+    </div>
+
+    <div class="row">
+        <div class="span12">
             <div id="reset"><input type="button" name="reset" value="Zur&uuml;cksetzen" class="btn"/></div>
+            <h3>Auswahl
+                <small>Parkplatz/Parkhaus</small>
+            </h3>
             <div id="chooser">
-                <label for="parkings">Parkplatz/Parkhaus:&nbsp;</label>
                 <select id="parkings" name="parkings">
                     <option value="Falkenstrasse">Falkenstrasse</option>
                     <option value="St%20Marien">St. Marien</option>
@@ -109,23 +83,28 @@
             </div>
 
         </div>
+    </div>
 
-        <div class="row">
-
-            <h3>&Uuml;bersicht (zoomen m&ouml;glich)</h3>
-
+    <div class="row">
+        <div class="span12">
+            <h3>&Uuml;bersicht
+                <small>zoomen m&ouml;glich</small>
+            </h3>
             <div id="overview" style="height: 50px; width: 400px;"></div>
-
-        </div>
-        <div class="row">
-            <h3>Detailliert (zoomen m&ouml;glich)</h3>
-
-            <div id="placeholder" style="height: 300px"></div>
-
         </div>
     </div>
+
+    <div class="row">
+        <div class="span12">
+            <h3>Detailliert
+                <small>zoomen m&ouml;glich</small>
+            </h3>
+            <div id="placeholder" style="height: 300px"></div>
+        </div>
+    </div>
+
     <footer>
-        <p>&copy; Universit&auml;t zu L&uuml;beck 2011</p>
+        <!--p>&copy; Universit&auml;t zu L&uuml;beck 2012</p-->
     </footer>
 </div>
 <!-- container -->
@@ -135,7 +114,6 @@
 <script language="javascript" type="text/javascript" src="lib/flot/jquery.flot.js"></script>
 <script language="javascript" type="text/javascript" src="lib/flot/jquery.flot.selection.js"></script>
 <script language="javascript" type="text/javascript" src="lib/flot/jquery.flot.stack.js"></script>
-<script language="javascript" type="text/javascript" src="lib/bootstrap-twipsy.js"></script>
-<script language="javascript" type="text/javascript" src="lib/bootstrap-alerts.js"></script>
+<script language="javascript" type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
 <script language="javascript" type="text/javascript" src="src/history.js"></script>
 </html>

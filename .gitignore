@@ -4,3 +4,4 @@
 *.log
 *.rdb
 redis.out
+dump.rdb

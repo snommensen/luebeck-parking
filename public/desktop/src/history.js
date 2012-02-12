@@ -157,7 +157,7 @@ $(function () {
     }
 
     function showTooltip(x, y, contents) {
-        $("tooltip").twipsy({ html:"<div>" + contents + "</div>", animate:true });
+        //$("tooltip").twipsy({ html:"<div>" + contents + "</div>", animate:true });
         $("<div id=\"tooltip\">" + contents + "</div>").css({
             position:"absolute",
             display:"none",
@@ -187,19 +187,18 @@ $(function () {
             ],
             smallOptions);
 
-        $("<div class=\"alert-message error\">" +
-            "<a class=\"close\" href=\"#\">×</a>" +
-            "<p><strong>F&uuml;r diesen Parkplatz sind keine Daten verf&uuml;gbar!</strong></p>" +
-            "</div>").css({
-                position:"absolute",
-                left:20,
-                top:-75,
-                width:"75%",
-                margin:"auto",
-                padding:10,
-                "font-size":14
-            }).appendTo("#placeholder").alert().fadeIn(200);
+        $("div.alert").remove();
+
+        $("<div class=\"alert alert-error\">"
+            + "<a id=\"close\" class=\"close\">×</a>"
+            + "<strong>F&uuml;r diesen Parkplatz sind keine Daten verf&uuml;gbar!</strong>"
+            + "</div>").appendTo("#info").fadeIn(200);
     }
+
+    $("div.alert").click(function () {
+        console.log("Close Alarm");
+        $(this).remove();
+    });
 
     var parking = "Falkenstrasse"; // default
 
@@ -220,6 +219,8 @@ $(function () {
         // reset data
         occupancy = [];
         total = [];
+
+        $("div.alert").remove();
 
         $.ajax({
             url:"http://" + host + ":" + port + "/json/history/" + parking,

@@ -3,38 +3,10 @@
 <head>
     <title>Parkpl&auml;tze und Parkh&auml;user in L&uuml;beck</title>
     <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
-    <style type="text/css">
-        body {
-            padding-top: 60px;
-            padding-bottom: 40px;
-        }
-
-        #map_canvas {
-            width: 100%;
-            height: 525px;
-        }
-
-        img {
-            max-width: none;
-        }
-    </style>
-    <script type="text/javascript"
-            src="http://maps.googleapis.com/maps/api/js?key=AIzaSyA65Lvtdxl8XNxrlQuPjLGLtR16fjj9Nqg&sensor=true">
-    </script>
-    <script type="text/javascript">
-        function initialize() {
-            var myOptions = {
-                center:new google.maps.LatLng(53.867814, 10.687208),
-                zoom:14,
-                mapTypeId:google.maps.MapTypeId.ROADMAP
-            };
-            var map = new google.maps.Map(document.getElementById("map_canvas"),
-                    myOptions);
-        }
-    </script>
+    <link rel="stylesheet" href="css/parkings.css">
 </head>
 
-<body onload="initialize()">
+<body>
 
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
@@ -67,7 +39,11 @@
     </div>
 
     <div class="row">
-        <div class="span12">
+        <div class="span3">
+            <ul id="parkings" class="nav nav-list">
+            </ul>
+        </div>
+        <div class="span9">
             <div id="map_canvas"></div>
         </div>
     </div>
@@ -80,5 +56,12 @@
 <!-- /container -->
 
 </body>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+<script language="javascript" type="text/javascript" src="lib/jquery.min.js"></script>
+<script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js?key=AIzaSyA65Lvtdxl8XNxrlQuPjLGLtR16fjj9Nqg&sensor=true">
+</script>
+<script type="text/javascript" src="src/parkings.js">
+</script>
 </html>
 

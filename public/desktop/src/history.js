@@ -197,7 +197,7 @@ $(function () {
     });
 
     //var host = "enterprise-it.corona.itm.uni-luebeck.de";
-    var host = "solaris.local";
+    var host = "control.local";
     var port = 8080;
 
     function fetchData(parking) {

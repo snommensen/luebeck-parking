@@ -3,6 +3,16 @@ $(document).ready(function () {
     var port = 8080;
     var socket = io.connect(host + ":" + port);
 
+    function initialize() {
+        var myOptions = {
+            center:new google.maps.LatLng(53.867814, 10.687208),
+            zoom:14,
+            mapTypeId:google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById("map_canvas"),
+                myOptions);
+    }
+
     function calculateOccupation(parking) {
         return Math.floor(100 - ((parking.free * 100) / parking.spaces));
     }
@@ -13,6 +23,7 @@ $(document).ready(function () {
         if (!current.hasOwnProperty("parkings")) return;
         var parkings = current.parkings;
         $('#parkings').empty();
+        $('#parkings').append('<li class="nav-header">PARKPL&Auml;TZE</li>');
         for (var i = 0; i < parkings.length; ++i) {
             $('#parkings').append('<li><a href="#">'
                 + '<div class="free" style="float:right;margin-right:15px;"><div class="occupied" style="width: '
@@ -21,7 +32,6 @@ $(document).ready(function () {
                 + parkings[i].name
                 + '</a></li>');
         }
-        $('#parkings').listview('refresh');
     }
 
     function onNoData() {
@@ -40,6 +50,9 @@ $(document).ready(function () {
         }
         onData(dataObj);
     });
+
+    /* Initialize Google Map */
+    initialize();
 
     /* Fetch data once initially */
     $.ajax({

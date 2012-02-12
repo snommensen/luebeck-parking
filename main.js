@@ -24,7 +24,7 @@ function onScrape() {
 }
 
 function onHistory() {
-    console.log("Storing history data...");
+    util.log("Storing history data...");
     var parkings = _data.current.parkings;
     if (typeof parkings !== "undefined" && parkings !== null) {
         history.storeHistory(parkings, function () {

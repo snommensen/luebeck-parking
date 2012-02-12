@@ -85,25 +85,35 @@ $(function () {
             total[j][0] += 60 * 60 * 1000;
 
         // and plot all we got
-        plot = $.plot($("#placeholder"), [
-            { data:occupancy, color:"rgb(200, 20, 30)" },
-            { data:total, color:"rgb(30, 180, 20)" }
-        ], options);
-
-        smallPlot = $.plot($("#overview"), [
-            { data:occupancy, color:"rgb(200, 20, 30)" },
-            { data:total, color:"rgb(30, 180, 20)" }
-        ], smallOptions);
-
-        $("#placeholder").bind("plotselected", function (event, ranges) {
-            // do the zooming
-            plot = $.plot($("#placeholder"), [
+        plot = $.plot(
+            $("#placeholder"),
+            [
                 { data:occupancy, color:"rgb(200, 20, 30)" },
                 { data:total, color:"rgb(30, 180, 20)" }
             ],
-            $.extend(true, {}, options, {
-                xaxis:{ min:ranges.xaxis.from, max:ranges.xaxis.to }
-            }));
+            options
+        );
+
+        smallPlot = $.plot(
+            $("#overview"),
+            [
+                { data:occupancy, color:"rgb(200, 20, 30)" },
+                { data:total, color:"rgb(30, 180, 20)" }
+            ],
+            smallOptions
+        );
+
+        $("#placeholder").bind("plotselected", function (event, ranges) {
+            // do the zooming
+            plot = $.plot(
+                $("#placeholder"),
+                [
+                    { data:occupancy, color:"rgb(200, 20, 30)" },
+                    { data:total, color:"rgb(30, 180, 20)" }
+                ],
+                $.extend(true, {}, options, {
+                    xaxis:{ min:ranges.xaxis.from, max:ranges.xaxis.to }
+                }));
 
             // don"t fire event on the overview to prevent eternal loop
             smallPlot.setSelection(ranges, true);
@@ -161,27 +171,33 @@ $(function () {
     }
 
     function onNoDataRecieved() {
-        plot = $.plot($("#placeholder"), [
-            { data:[], color:"rgb(200, 20, 30)" },
-            { data:[], color:"rgb(30, 180, 20)" }
-        ], options);
+        plot = $.plot(
+            $("#placeholder"),
+            [
+                { data:[], color:"rgb(200, 20, 30)" },
+                { data:[], color:"rgb(30, 180, 20)" }
+            ],
+            options);
 
-        smallPlot = $.plot($("#overview"), [
-            { data:[], color:"rgb(200, 20, 30)" },
-            { data:[], color:"rgb(30, 180, 20)" }
-        ], smallOptions);
+        smallPlot = $.plot(
+            $("#overview"),
+            [
+                { data:[], color:"rgb(200, 20, 30)" },
+                { data:[], color:"rgb(30, 180, 20)" }
+            ],
+            smallOptions);
 
         $("<div class=\"alert-message error\">" +
             "<a class=\"close\" href=\"#\">×</a>" +
             "<p><strong>F&uuml;r diesen Parkplatz sind keine Daten verf&uuml;gbar!</strong></p>" +
             "</div>").css({
-               position:"absolute",
-               left:20,
-               top:-75,
-               width:"75%",
-               margin:"auto",
-               padding:10,
-               "font-size":14
+                position:"absolute",
+                left:20,
+                top:-75,
+                width:"75%",
+                margin:"auto",
+                padding:10,
+                "font-size":14
             }).appendTo("#placeholder").alert().fadeIn(200);
     }
 
@@ -189,18 +205,18 @@ $(function () {
 
     $("#parkings").change(function () {
         parking = $(this).val();
-        fetchData(parking);
+        loadData(parking);
     });
 
     $("#reset").click(function () {
-        fetchData(parking);
+        loadData(parking);
     });
 
     //var host = "enterprise-it.corona.itm.uni-luebeck.de";
     var host = "control.local";
     var port = 8080;
 
-    function fetchData(parking) {
+    function loadData(parking) {
         // reset data
         occupancy = [];
         total = [];
@@ -216,6 +232,5 @@ $(function () {
         });
     }
 
-    fetchData(parking);
-
+    loadData(parking);
 });

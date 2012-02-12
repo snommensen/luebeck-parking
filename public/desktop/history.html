@@ -3,32 +3,25 @@
 <head>
     <title>Parkplatzbelegung Historie</title>
     <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
-    <style>
-        body {
-            padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-        }
-
-        #reset {
-            float: right;
-        }
-    </style>
+    <link rel="stylesheet" href="css/history.css">
 </head>
 <body>
 
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </a>
-            <a class="brand" href="index.html">L&uuml;beck Parking</a>
+            <!--a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="#">L&uuml;beck Parking</a-->
 
             <div class="nav-collapse">
                 <ul class="nav">
-                    <li class="active"><a href="index.html">Home</a></li>
-                    <li><a href="#about">&Uuml;ber</a></li>
+                    <li><a href="index.html">&Uuml;bersicht</a></li>
+                    <li><a href="parkings.html">Parkpl&auml;tze</a></li>
+                    <li class="active"><a href="#about">Historie</a></li>
                     <li><a href="#contact">Kontakt</a></li>
                 </ul>
             </div>
@@ -47,7 +40,7 @@
 
     <div class="row">
         <div class="span12">
-            <div id="reset"><input type="button" name="reset" value="Zur&uuml;cksetzen" class="btn"/></div>
+            <div id="reset"><a href="#" class="btn"><i class="icon-zoom-out"></i> Zur&uuml;cksetzen</a></div>
             <h3>Auswahl
                 <small>Parkplatz/Parkhaus</small>
             </h3>

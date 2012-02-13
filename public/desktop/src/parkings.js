@@ -64,5 +64,4 @@ $(document).ready(function () {
             404:onNoData
         }
     });
-
 });

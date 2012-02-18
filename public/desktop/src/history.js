@@ -1,4 +1,19 @@
 $(function () {
+    //var host = "enterprise-it.corona.itm.uni-luebeck.de";
+    var host = "control.local";
+    var port = 8080;
+
+    var occupancy = [];
+    var total = [];
+    var spaces = 0;
+
+    var plot = null;
+    var smallPlot = null;
+
+    var i, j;
+
+    var parking = "Falkenstrasse"; // default
+
     var options = {
         series:{
             stack:true,
@@ -32,31 +47,28 @@ $(function () {
     function weekendAreas(axes) {
         var markings = [];
         var d = new Date(axes.xaxis.min);
+        var time = d.getTime();
+
         // go to the first Saturday
         d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 1) % 7));
         d.setUTCSeconds(0);
         d.setUTCMinutes(0);
         d.setUTCHours(0);
-        var i = d.getTime();
+
         do {
             // when we don"t set yaxis, the rectangle automatically
             // extends to infinity upwards and downwards
-            markings.push({ xaxis:{ from:i, to:i + 2 * 24 * 60 * 60 * 1000 } });
-            i += 7 * 24 * 60 * 60 * 1000;
-        } while (i < axes.xaxis.max);
+            markings.push({ xaxis:{ from:time, to:time + 2 * 24 * 60 * 60 * 1000 } });
+            time += 7 * 24 * 60 * 60 * 1000;
+        } while (time < axes.xaxis.max);
 
         return markings;
     }
 
-    var occupancy = [];
-    var total = [];
-    var spaces = 0;
-
-    var plot = null;
-    var smallPlot = null;
-
     function onDataReceived(parkingData) {
-        if ($("#tooltip")) $("#tooltip").remove();
+        if ($("#tooltip")) {
+            $("#tooltip").remove();
+        }
 
         //if (console && console.log) console.log(JSON.stringify(parkingData));
 
@@ -78,11 +90,13 @@ $(function () {
         // first correct the timestamps - they are recorded as the daily
         // midnights in UTC+0100, but Flot always displays dates in UTC
         // so we have to add one hour to hit the midnights in the plot
-        for (var i = 0; i < occupancy.length; ++i)
+        for (i = 0; i < occupancy.length; i += 1) {
             occupancy[i][0] += 60 * 60 * 1000;
+        }
 
-        for (var j = 0; j < total.length; ++j)
+        for (j = 0; j < total.length; j += 1) {
             total[j][0] += 60 * 60 * 1000;
+        }
 
         // and plot all we got
         plot = $.plot(
@@ -125,8 +139,8 @@ $(function () {
             $("#x").text(pos.x.toFixed(2));
             $("#y").text(pos.y.toFixed(2));
 
-            if (item) {
-                if (previousPoint != item.dataIndex) {
+            if (typeof item != "undefined" && item !== null) {
+                if (previousPoint !== item.dataIndex) {
                     previousPoint = item.dataIndex;
 
                     $("#tooltip").remove();
@@ -200,22 +214,16 @@ $(function () {
         $(this).remove();
     });
 
-    var parking = "Falkenstrasse"; // default
-
     $("#parkings").change(function () {
         parking = $(this).val();
-        loadData(parking);
+        loadParkingData(parking);
     });
 
     $("#reset").click(function () {
-        loadData(parking);
+        loadParkingData(parking);
     });
 
-    //var host = "enterprise-it.corona.itm.uni-luebeck.de";
-    var host = "control.local";
-    var port = 8080;
-
-    function loadData(parking) {
+    function loadParkingData(p) {
         // reset data
         occupancy = [];
         total = [];
@@ -223,7 +231,7 @@ $(function () {
         $("div.alert").remove();
 
         $.ajax({
-            url:"http://" + host + ":" + port + "/json/history/" + parking,
+            url:"http://" + host + ":" + port + "/json/history/" + p,
             method:"GET",
             dataType:"json",
             success:onDataReceived,
@@ -233,5 +241,5 @@ $(function () {
         });
     }
 
-    loadData(parking);
+    loadParkingData(parking);
 });

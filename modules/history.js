@@ -4,7 +4,9 @@ var async = require("async");
 var db = redis.createClient();
 
 db.on("error", function (err) {
-    if (typeof err !== "undefined" && err !== null) util.log(err);
+    if (typeof err !== "undefined" && err !== null) {
+        util.log(err);
+    }
 });
 
 function filterName(name) {
@@ -33,8 +35,8 @@ exports.storeHistory = function (rows, callback) {
     var timestamp = now.getTime();
     async.forEach(
         rows,
-        function (r, done) {
-            storeHistoryItem(r, timestamp, function () {
+        function (row, done) {
+            storeHistoryItem(row, timestamp, function () {
                 done();
             });
         },
@@ -57,7 +59,9 @@ function storeHistoryItem(row, timestamp, callback) {
         var parkingName = parkingBaseName(row.name);
 
         db.sadd(PARKING_SET, parkingName, function (err, result) {
-            if (typeof err !== "undefined" && err !== null) throw err;
+            if (typeof err !== "undefined" && err !== null) {
+                throw err;
+            }
             if (result === 1) {
                 db.hmset(parkingName, "name", row.name, "spaces", row.spaces, function (err) {
                     if (typeof err !== "undefined" && err !== null) throw err;
@@ -79,7 +83,9 @@ function storeHistoryItem(row, timestamp, callback) {
         var timelineName = timelineBaseName(row.name) + ":" + timestamp;
 
         db.lpush(timelineBaseName(row.name), timelineName, function (err) {
-            if (typeof err !== "undefined" && err !== null) throw err;
+            if (typeof err !== "undefined" && err !== null) {
+                throw err;
+            }
 
             db.hmset(timelineName, "timestamp", timestamp, "free", row.free, function (err) {
                 if (typeof err !== "undefined" && err !== null) throw err;
@@ -95,7 +101,9 @@ exports.findTimelineByName = function (name, callback) {
     util.log("HGETALL " + (parkingBaseName(name)));
 
     db.hgetall(parkingBaseName(name), function (err, parking) {
-        if (typeof err !== "undefined" && err !== null) throw err;
+        if (typeof err !== "undefined" && err !== null) {
+            throw err;
+        }
 
         if (typeof parking !== "undefined"
             && parking !== null
@@ -105,7 +113,9 @@ exports.findTimelineByName = function (name, callback) {
             var twoWeeks = 672;
 
             db.lrange(parking.timeline, twoWeeks * -1, -1, function (err, entries) {
-                if (typeof err !== "undefined" && err !== null) throw err;
+                if (typeof err !== "undefined" && err !== null) {
+                    throw err;
+                }
 
                 async.forEach(
                     entries,

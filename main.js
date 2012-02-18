@@ -8,15 +8,17 @@ var history = require(path.join(__dirname, modules_dir, "history"));
 
 // ----------------------------------------------------------------------------
 
-var _data = {"current":{"cities":[], "parkings":[]}};
+var CURRENT = {"current":{"cities":[], "parkings":[]}};
 
 function onScrape() {
     util.log("Scraping...");
     return scraper.scrape(function (err, result) {
-        if (typeof err !== "undefined" && err !== null) throw err;
+        if (typeof err !== "undefined" && err !== null) {
+            throw err;
+        }
         if (typeof result !== "undefined" && result !== null) {
-            _data = result;
-            util.log("#" + _data.current.parkings.length + " parkings returned.");
+            CURRENT = result;
+            util.log("#" + CURRENT.current.parkings.length + " parkings returned.");
             // Send data to connected clients via socket.io
             updateClients();
         }
@@ -24,8 +26,9 @@ function onScrape() {
 }
 
 function onHistory() {
+    var parkings;
     util.log("Storing history data...");
-    var parkings = _data.current.parkings;
+    parkings = CURRENT.current.parkings;
     if (typeof parkings !== "undefined" && parkings !== null) {
         history.storeHistory(parkings, function () {
             util.log("#" + parkings.length + " parkings historized.");
@@ -78,11 +81,11 @@ app.get("/", function (req, res) {
 
 app.get("/json/current", function (req, res) {
     console.time("Delivered: /json/current");
-    if (typeof _data === "undefined" || _data === null) {
+    if (typeof CURRENT === "undefined" || CURRENT === null) {
         res.send("Derzeit keine Daten verf&uuml;gbar.", 404);
     }
     else {
-        res.json(_data);
+        res.json(CURRENT);
     }
     console.timeEnd("Delivered: /json/current");
     util.log("Answered request from: " + (req.header("host")));
@@ -119,23 +122,32 @@ var io = socket.listen(app);
 /*
  * Manage web-socket connections.
  */
-connectedClients = [];
+CONNECTED_CLIENTS = [];
 
 io.sockets.on("connection", function (client) {
-    console.log(client.id + " connected");
-    connectedClients.push(client);
+    util.log(client.id + " connected");
+    CONNECTED_CLIENTS.push(client);
 
     client.on("disconnect", function () {
-        connectedClients = _.without(connectedClients, client);
-        console.log("Disconnected");
+        CONNECTED_CLIENTS = _.without(CONNECTED_CLIENTS, client);
+        util.log(client.id + " disconnected");
     });
 });
 
 function updateClients() {
-    _.each(connectedClients, function (client) {
-        console.log("Emit to client: " + client.id);
-        client.emit("current", JSON.stringify(_data));
-    });
+    async.forEach(
+        CONNECTED_CLIENTS,
+        function (client, done) {
+            util.log("Emit to client: " + client.id);
+            client.emit("current", JSON.stringify(CURRENT));
+            done();
+        },
+        function (err) {
+            if (typeof err !== "undefined" && err !== null) {
+               util.log(err);
+            }
+        }
+    );
 }
 
 // ----------------------------------------------------------------------------

@@ -10,7 +10,7 @@ $(document).ready(function () {
             mapTypeId:google.maps.MapTypeId.ROADMAP
         };
         var map = new google.maps.Map(document.getElementById("map_canvas"),
-                myOptions);
+            myOptions);
     }
 
     function calculateOccupation(parking) {
@@ -18,13 +18,24 @@ $(document).ready(function () {
     }
 
     function onData(data) {
-        if (!data.hasOwnProperty("current")) return;
-        var current = data.current;
-        if (!current.hasOwnProperty("parkings")) return;
-        var parkings = current.parkings;
+        var current;
+        var parkings;
+        var i;
+
+        if (!data.hasOwnProperty("current")) {
+            return;
+        }
+        current = data.current;
+
+        if (!current.hasOwnProperty("parkings")) {
+            return;
+        }
+        parkings = current.parkings;
+
         $('#parkings').empty();
         $('#parkings').append('<li class="nav-header">PARKPL&Auml;TZE</li>');
-        for (var i = 0; i < parkings.length; ++i) {
+
+        for (i = 0; i < parkings.length; i += 1) {
             $('#parkings').append('<li><a href="#">'
                 + '<div class="free" style="float:right;margin-right:15px;"><div class="occupied" style="width: '
                 + calculateOccupation(parkings[i])

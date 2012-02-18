@@ -138,7 +138,7 @@ function updateClients() {
     async.forEach(
         CONNECTED_CLIENTS,
         function (client, done) {
-            util.log("Emit to client: " + client.id);
+            util.log("emit to client " + client.id);
             client.emit("current", JSON.stringify(CURRENT));
             done();
         },
@@ -146,6 +146,7 @@ function updateClients() {
             if (typeof err !== "undefined" && err !== null) {
                util.log(err);
             }
+            util.log("done emitting data to all clients");
         }
     );
 }

@@ -17,26 +17,28 @@ function filterName(name) {
     return result;
 }
 
-function parkingBaseName(name) {
+function createParkingKey(name) {
     return "parking:" + filterName(name);
 }
 
-function timelineBaseName(name) {
+function createTimelineKey(name) {
     return "timeline:" + filterName(name);
 }
 
 var PARKING_SET = "parkings";
 
-exports.storeHistory = function (rows, callback) {
-    if (typeof rows === "undefined" || rows === null) {
+exports.storeHistory = function (parkings, callback) {
+    if (typeof parkings === "undefined" || parkings === null) {
         callback();
     }
+
     var now = new Date();
     var timestamp = now.getTime();
+
     async.forEach(
-        rows,
-        function (row, done) {
-            storeHistoryItem(row, timestamp, function () {
+        parkings,
+        function (p, done) {
+            storeHistoryItem(p, timestamp, function () {
                 done();
             });
         },
@@ -49,45 +51,46 @@ exports.storeHistory = function (rows, callback) {
     );
 };
 
-function storeHistoryItem(row, timestamp, callback) {
+function storeHistoryItem(parking, timestamp, callback) {
+    if (typeof parking !== "undefined"
+        && parking !== null
+        && parking.hasOwnProperty("name")
+        && parking.hasOwnProperty("spaces")) {
 
-    if (typeof row !== "undefined"
-        && row !== null
-        && row.hasOwnProperty("name")
-        && row.hasOwnProperty("spaces")) {
+        var parkingKey = createParkingKey(parking.name);
 
-        var parkingName = parkingBaseName(row.name);
-
-        db.sadd(PARKING_SET, parkingName, function (err, result) {
+        db.sadd(PARKING_SET, parkingKey, function (err, result) {
             if (typeof err !== "undefined" && err !== null) {
                 throw err;
             }
             if (result === 1) {
-                db.hmset(parkingName, "name", row.name, "spaces", row.spaces, function (err) {
+                db.hmset(parkingKey, "name", parking.name, "spaces", parking.spaces, function (err) {
                     if (typeof err !== "undefined" && err !== null) throw err;
                 });
             }
         });
     }
 
-    if (typeof row !== "undefined"
-        && row !== null
-        && row.hasOwnProperty("free")
+    if (typeof parking !== "undefined"
+        && parking !== null
+        && parking.hasOwnProperty("free")
         && typeof timestamp !== "undefined"
         && timestamp !== null) {
 
-        parkingName = parkingBaseName(row.name);
+        parkingKey = createParkingKey(parking.name);
 
-        db.hset(parkingName, "timeline", timelineBaseName(row.name));
+        /* Add timeline reference to parking */
+        db.hset(parkingKey, "timeline", createTimelineKey(parking.name));
 
-        var timelineName = timelineBaseName(row.name) + ":" + timestamp;
+        var timelineKey = createTimelineKey(parking.name) + ":" + timestamp;
 
-        db.lpush(timelineBaseName(row.name), timelineName, function (err) {
+        db.lpush(createTimelineKey(parking.name), timelineKey, function (err) {
             if (typeof err !== "undefined" && err !== null) {
                 throw err;
             }
 
-            db.hmset(timelineName, "timestamp", timestamp, "free", row.free, function (err) {
+            /* Set timeline attributes */
+            db.hmset(timelineKey, "timestamp", timestamp, "free", parking.free, function (err) {
                 if (typeof err !== "undefined" && err !== null) throw err;
                 callback();
             });
@@ -98,9 +101,8 @@ function storeHistoryItem(row, timestamp, callback) {
 exports.findTimelineByName = function (name, callback) {
     var result = [];
 
-    util.log("HGETALL " + (parkingBaseName(name)));
-
-    db.hgetall(parkingBaseName(name), function (err, parking) {
+    /* Get parking with all attributes */
+    db.hgetall(createParkingKey(name), function (err, parking) {
         if (typeof err !== "undefined" && err !== null) {
             throw err;
         }
@@ -112,23 +114,29 @@ exports.findTimelineByName = function (name, callback) {
 
             var twoWeeks = 672;
 
-            db.lrange(parking.timeline, twoWeeks * -1, -1, function (err, entries) {
+            /* List this parking's timeline entries for the last two weeks */
+            db.lrange(parking.timeline, twoWeeks * -1, -1, function (err, timelines) {
                 if (typeof err !== "undefined" && err !== null) {
                     throw err;
                 }
 
+                /* Iterate this parking's timelines and collect attributes in result array */
                 async.forEach(
-                    entries,
-                    function (key, done) {
-                        util.log("HGETALL " + key);
-                        db.hgetall(key, function (err, value) {
-                            if (typeof err !== "undefined" && err !== null) throw err;
-                            result.push(value);
+                    timelines,
+                    function (timelineKey, done) {
+                        util.log("HGETALL " + timelineKey);
+                        db.hgetall(timelineKey, function (err, timelineAttributes) {
+                            if (typeof err !== "undefined" && err !== null) {
+                                throw err;
+                            }
+                            result.push(timelineAttributes);
                             done();
                         });
                     },
                     function (err) {
-                        if (typeof err !== "undefined" && err !== null) throw err;
+                        if (typeof err !== "undefined" && err !== null) {
+                            throw err;
+                        }
                         callback(result, parking.spaces);
                     }
                 );

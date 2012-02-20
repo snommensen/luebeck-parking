@@ -129,7 +129,7 @@ $(function () {
                     xaxis:{ min:ranges.xaxis.from, max:ranges.xaxis.to }
                 }));
 
-            // don"t fire event on the overview to prevent eternal loop
+            // Don"t fire event on the overview to prevent eternal loop
             smallPlot.setSelection(ranges, true);
         });
 
@@ -139,23 +139,21 @@ $(function () {
             $("#x").text(pos.x.toFixed(2));
             $("#y").text(pos.y.toFixed(2));
 
-            if (typeof item != "undefined" && item !== null) {
+            if (typeof item !== "undefined" && item !== null) {
                 if (previousPoint !== item.dataIndex) {
                     previousPoint = item.dataIndex;
-
                     $("#tooltip").remove();
                     var parkingOccupation = item.datapoint[1].toFixed(2);
-                    var parkingTimestamp = item.datapoint[2].toFixed(2);
-                    var timestamp = new Date();
-                    timestamp.setTime(parkingTimestamp - 60 * 60 * 1000);
-
+                    var parkingTimestamp = item.datapoint[0].toFixed(2);
+                    var now = new Date();
+                    now.setTime(parkingTimestamp + 60 * 60 * 1000);
                     showTooltip(item.pageX, item.pageY,
                         "<b>Belegung: </b>"
                             + parseInt(parkingOccupation)
                             + "/"
                             + spaces
                             + "; <b>Zeitpunkt:</b> "
-                            + timestamp
+                            + now
                     );
                 }
             }
@@ -191,7 +189,8 @@ $(function () {
                 { data:[], color:"rgb(200, 20, 30)" },
                 { data:[], color:"rgb(30, 180, 20)" }
             ],
-            options);
+            options
+        );
 
         smallPlot = $.plot(
             $("#overview"),
@@ -199,20 +198,16 @@ $(function () {
                 { data:[], color:"rgb(200, 20, 30)" },
                 { data:[], color:"rgb(30, 180, 20)" }
             ],
-            smallOptions);
+            smallOptions
+        );
 
         $("div.alert").remove();
 
         $("<div class=\"alert alert-error\">"
-            + "<a id=\"close\" class=\"close\">×</a>"
+            + "<a id=\"close\"  data-dismiss=\"alert\" class=\"close\">×</a>"
             + "<strong>F&uuml;r diesen Parkplatz sind keine Daten verf&uuml;gbar!</strong>"
             + "</div>").appendTo("#info").fadeIn(200);
     }
-
-    $("div.alert").click(function () {
-        console.log("Close Alarm");
-        $(this).remove();
-    });
 
     $("#parkings").change(function () {
         parking = $(this).val();
@@ -224,7 +219,7 @@ $(function () {
     });
 
     function loadParkingData(p) {
-        // reset data
+        /* Reset data */
         occupancy = [];
         total = [];
 

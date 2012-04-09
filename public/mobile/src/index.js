@@ -8,9 +8,13 @@ $(document).ready(function () {
     }
 
     function onData(data) {
-        if (!data.hasOwnProperty("current")) return;
+        if (!data.hasOwnProperty("current")) {
+            return;
+        }
         var current = data.current;
-        if (!current.hasOwnProperty("parkings")) return;
+        if (!current.hasOwnProperty("parkings")) {
+            return;
+        }
         var parkings = current.parkings;
         $('#parkings').empty();
         for (var i = 0; i < parkings.length; ++i) {

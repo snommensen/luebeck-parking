@@ -52,12 +52,15 @@ exports.storeHistory = function (parkings, callback) {
 };
 
 function storeHistoryItem(parking, timestamp, callback) {
-    if (typeof parking !== "undefined"
-        && parking !== null
-        && parking.hasOwnProperty("name")
-        && parking.hasOwnProperty("spaces")) {
+    var parkingKey;
 
-        var parkingKey = createParkingKey(parking.name);
+    if (typeof parking === "undefined" || parking === null) {
+        callback();
+    }
+
+    /* 1) Save master data */
+    if (parking.hasOwnProperty("name") && parking.hasOwnProperty("spaces")) {
+        parkingKey = createParkingKey(parking.name);
 
         db.sadd(PARKING_SET, parkingKey, function (err, result) {
             if (typeof err !== "undefined" && err !== null) {
@@ -65,33 +68,33 @@ function storeHistoryItem(parking, timestamp, callback) {
             }
             if (result === 1) {
                 db.hmset(parkingKey, "name", parking.name, "spaces", parking.spaces, function (err) {
-                    if (typeof err !== "undefined" && err !== null) throw err;
+                    if (typeof err !== "undefined" && err !== null) {
+                        throw err;
+                    }
                 });
             }
         });
     }
 
-    if (typeof parking !== "undefined"
-        && parking !== null
-        && parking.hasOwnProperty("free")
-        && typeof timestamp !== "undefined"
-        && timestamp !== null) {
-
-        parkingKey = createParkingKey(parking.name);
+    /* 2) Save variable data */
+    if (parking.hasOwnProperty("free") && typeof timestamp !== "undefined"
+                                       && timestamp !== null) {
+        var timelineKey  = createTimelineKey(parking.name);
+        var timelineKeyWithTimestamp = timelineKey + ":" + timestamp;
 
         /* Add timeline reference to parking */
-        db.hset(parkingKey, "timeline", createTimelineKey(parking.name));
+        db.hset(parkingKey, "timeline", timelineKey);
 
-        var timelineKey = createTimelineKey(parking.name) + ":" + timestamp;
-
-        db.lpush(createTimelineKey(parking.name), timelineKey, function (err) {
+        db.lpush(timelineKey, timelineKeyWithTimestamp, function (err) {
             if (typeof err !== "undefined" && err !== null) {
                 throw err;
             }
 
             /* Set timeline attributes */
-            db.hmset(timelineKey, "timestamp", timestamp, "free", parking.free, function (err) {
-                if (typeof err !== "undefined" && err !== null) throw err;
+            db.hmset(timelineKeyWithTimestamp, "timestamp", timestamp, "free", parking.free, function (err) {
+                if (typeof err !== "undefined" && err !== null) {
+                    throw err;
+                }
                 callback();
             });
         });

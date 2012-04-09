@@ -18,6 +18,14 @@ function onScrape() {
         }
         if (typeof result !== "undefined" && result !== null) {
             CURRENT = result;
+            if (!CURRENT.hasOwnProperty("current")) {
+                return;
+            }
+            else {
+                if (!CURRENT.current.hasOwnProperty("parkings")) {
+                    return;
+                }
+            }
             util.log("#" + CURRENT.current.parkings.length + " parkings returned.");
             // Send data to connected clients via socket.io
             updateClients();
@@ -27,6 +35,14 @@ function onScrape() {
 
 function onHistory() {
     var parkings;
+    if (!CURRENT.hasOwnProperty("current")) {
+        return;
+    }
+    else {
+        if (!CURRENT.current.hasOwnProperty("parkings")) {
+            return;
+        }
+    }
     util.log("Storing history data...");
     parkings = CURRENT.current.parkings;
     if (typeof parkings !== "undefined" && parkings !== null) {
@@ -135,8 +151,9 @@ io.sockets.on("connection", function (client) {
 });
 
 function updateClients() {
+    var clientsToNotify = CONNECTED_CLIENTS; // real copy?
     async.forEach(
-        CONNECTED_CLIENTS,
+        clientsToNotify,
         function (client, done) {
             util.log("emit to client " + client.id);
             client.emit("current", JSON.stringify(CURRENT));

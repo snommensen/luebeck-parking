@@ -108,10 +108,11 @@ app.get("/json/current", function (req, res) {
 });
 
 app.get("/json/history/:name", function (req, res) {
-    var name = req.params["name"];
+    var name, feedback;
+    name = req.params["name"];
     console.time("Delivered: /json/history/" + name);
     history.findTimelineByName(name, function (timeline, spaces) {
-        var feedback = {
+        feedback = {
             "name":name,
             "spaces":spaces,
             "timeline":timeline
@@ -138,7 +139,7 @@ var io = socket.listen(app);
 /*
  * Manage web-socket connections.
  */
-CONNECTED_CLIENTS = [];
+var CONNECTED_CLIENTS = [];
 
 io.sockets.on("connection", function (client) {
     util.log(client.id + " connected");
@@ -151,7 +152,7 @@ io.sockets.on("connection", function (client) {
 });
 
 function updateClients() {
-    var clientsToNotify = CONNECTED_CLIENTS; // real copy?
+    var clientsToNotify = _.clone(CONNECTED_CLIENTS);
     async.forEach(
         clientsToNotify,
         function (client, done) {
@@ -163,7 +164,9 @@ function updateClients() {
             if (typeof err !== "undefined" && err !== null) {
                util.log(err);
             }
-            util.log("done emitting data to all clients");
+            else {
+                util.log("done emitting data to all clients");
+            }
         }
     );
 }

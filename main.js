@@ -12,7 +12,7 @@ var CURRENT = {"current":{"cities":[], "parkings":[]}};
 
 function onScrape() {
     util.log("Scraping...");
-    return scraper.scrape(function (err, result) {
+    scraper.scrape(function (err, result) {
         if (typeof err !== "undefined" && err !== null) {
             throw err;
         }
@@ -20,8 +20,7 @@ function onScrape() {
             CURRENT = result;
             if (!CURRENT.hasOwnProperty("current")) {
                 return;
-            }
-            else {
+            } else {
                 if (!CURRENT.current.hasOwnProperty("parkings")) {
                     return;
                 }
@@ -37,8 +36,7 @@ function onHistory() {
     var parkings;
     if (!CURRENT.hasOwnProperty("current")) {
         return;
-    }
-    else {
+    } else {
         if (!CURRENT.current.hasOwnProperty("parkings")) {
             return;
         }
@@ -64,14 +62,14 @@ var express = require("express");
 var host = "0.0.0.0";
 var port = 8080;
 
-app = express.createServer();
+var app = express.createServer();
 
 app.configure(function () {
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(app.router);
     app.use(express.static(__dirname + "/public"));
-    app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 //app.configure("production", function () {

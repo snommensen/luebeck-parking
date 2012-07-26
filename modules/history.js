@@ -109,43 +109,42 @@ exports.findTimelineByName = function (name, callback) {
             throw err;
         }
 
-        if (typeof parking !== "undefined"
-            && parking !== null
-            && parking.hasOwnProperty("timeline")
-            && parking.hasOwnProperty("spaces")) {
+        if (typeof parking === "undefined"
+            || parking === null
+            || !parking.hasOwnProperty("timeline")
+            || !parking.hasOwnProperty("spaces")) {
+            callback([], 0);        
+        }
 
-            var twoWeeks = 672;
+        var twoWeeks = 672;
 
-            /* List this parking's timeline entries for the last two weeks */
-            db.lrange(parking.timeline, twoWeeks * -1, -1, function (err, timelines) {
-                if (typeof err !== "undefined" && err !== null) {
-                    throw err;
-                }
+        /* List this parking's timeline entries for the last two weeks */
+        db.lrange(parking.timeline, twoWeeks * -1, -1, function (err, timelines) {
+            if (typeof err !== "undefined" && err !== null) {
+                throw err;
+            }
 
-                /* Iterate this parking's timelines and collect attributes in result array */
-                async.forEach(
-                    timelines,
-                    function (timelineKey, done) {
-                        util.log("HGETALL " + timelineKey);
-                        db.hgetall(timelineKey, function (err, timelineAttributes) {
-                            if (typeof err !== "undefined" && err !== null) {
-                                throw err;
-                            }
-                            result.push(timelineAttributes);
-                            done();
-                        });
-                    },
-                    function (err) {
+            /* Iterate this parking's timelines and collect attributes in result array */
+            async.forEach(
+                timelines,
+                function (timelineKey, done) {
+                    util.log("HGETALL " + timelineKey);
+                    db.hgetall(timelineKey, function (err, timelineAttributes) {
                         if (typeof err !== "undefined" && err !== null) {
                             throw err;
                         }
-                        callback(result, parking.spaces);
+                        result.push(timelineAttributes);
+                        done();
+                    });
+                },
+                function (err) {
+                    if (typeof err !== "undefined" && err !== null) {
+                        throw err;
                     }
-                );
-            });
-        } else {
-            callback([], 0);
-        }
+                    callback(result, parking.spaces);
+                }
+            );
+        });
     });
 };
 

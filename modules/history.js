@@ -32,13 +32,12 @@ exports.storeHistory = function (parkings, callback) {
         callback();
     }
 
-    var now = new Date();
-    var timestamp = now.getTime();
+    var millis = new Date().getTime();
 
     async.forEach(
         parkings,
         function (p, done) {
-            storeHistoryItem(p, timestamp, function () {
+            storeHistoryItem(p, millis, function () {
                 done();
             });
         },

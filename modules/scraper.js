@@ -20,8 +20,7 @@ exports.scrape = function (callback) {
 
             if (response.statusCode !== 200) {
                 util.log("Error contacting " + SCRAPE_URL);
-            }
-            else {
+            } else {
                 jsdom.env(page, [JQUERY_URL], function (err, window) {
                     if (typeof err !== "undefined" && err !== null) {
                         throw err;
@@ -64,8 +63,7 @@ function parseParkings(window, callback) {
                     tmpParking.spaces = $($tmpTds).eq(1).html();
                     tmpParking.free = $($tmpTds).eq(2).html();
                     tmpParking.status = "open";
-                }
-                else if ($($tmpTds).size() > 0) {
+                } else if ($($tmpTds).size() > 0) {
                     tmpParking.status = "closed";
                 }
                 tmpParking.geo = geo.data[tmpParking.name];

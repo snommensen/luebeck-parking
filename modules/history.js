@@ -77,8 +77,8 @@ function storeHistoryItem(parking, timestamp, callback) {
 
     /* 2) Save variable data */
     if (parking.hasOwnProperty("free") && typeof timestamp !== "undefined"
-                                       && timestamp !== null) {
-        var timelineKey  = createTimelineKey(parking.name);
+        && timestamp !== null) {
+        var timelineKey = createTimelineKey(parking.name);
         var timelineKeyWithTimestamp = timelineKey + ":" + timestamp;
 
         /* Add timeline reference to parking */
@@ -101,7 +101,8 @@ function storeHistoryItem(parking, timestamp, callback) {
 }
 
 exports.findTimelineByName = function (name, callback) {
-    var result = [];
+    var result = [],
+        twoWeeks = 672;
 
     /* Get parking with all attributes */
     db.hgetall(createParkingKey(name), function (err, parking) {
@@ -113,10 +114,9 @@ exports.findTimelineByName = function (name, callback) {
             || parking === null
             || !parking.hasOwnProperty("timeline")
             || !parking.hasOwnProperty("spaces")) {
-            callback([], 0);        
+            callback([], 0);
         }
 
-        var twoWeeks = 672;
 
         /* List this parking's timeline entries for the last two weeks */
         db.lrange(parking.timeline, twoWeeks * -1, -1, function (err, timelines) {

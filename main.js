@@ -26,7 +26,7 @@ function onScrape() {
                 }
             }
             util.log("#" + CURRENT.current.parkings.length + " parkings returned.");
-            // Send data to connected clients via socket.io
+            // Send data to connected clients via web-socket
             updateClients();
         }
     });
@@ -61,15 +61,52 @@ setInterval(onHistory, historyDelay);
 var express = require("express");
 var host = "0.0.0.0";
 var port = 8080;
-
 var app = express.createServer();
+
+var sockjs = require('sockjs');
+var sockjsServer = sockjs.createServer();
+sockjsServer.installHandlers(app, {prefix:'/data'});
+
+/*
+ * Manage web-socket connections.
+ */
+var CONNECTED_CLIENTS = [];
+
+sockjsServer.on('connection', function (connection) {
+    CONNECTED_CLIENTS.push(connection);
+    connection.on('data', function (data) {
+        util.log("Received data: " + JSON.stringify(data));
+    });
+});
+
+
+function updateClients() {
+    var clientsToNotify = _.clone(CONNECTED_CLIENTS);
+    async.forEach(
+        clientsToNotify,
+        function (client, done) {
+            util.log("emit to client " + client.id);
+            client.write(JSON.stringify(CURRENT));
+            done();
+        },
+        function (err) {
+            if (typeof err !== "undefined" && err !== null) {
+                util.log(err);
+            } else {
+                util.log("done emitting data to all clients");
+            }
+        }
+    );
+}
+
+// ----------------------------------------------------------------------------
 
 app.configure(function () {
     app.use(express.methodOverride());
     app.use(express.bodyParser());
     app.use(app.router);
     app.use(express.static(__dirname + "/public"));
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+    app.use(express.errorHandler({ dumpExceptions:true, showStack:true }));
 });
 
 //app.configure("production", function () {
@@ -124,46 +161,6 @@ app.get("/json/history/:name", function (req, res) {
 });
 
 app.listen(port, host);
+console.log(' [*] Listening on ' + host + ':' + port);
 
-util.log("Server running: http://" + host + ":" + port + "/");
-
-// ----------------------------------------------------------------------------
-
-var socket = require("socket.io");
-var io = socket.listen(app);
-
-/*
- * Manage web-socket connections.
- */
-var CONNECTED_CLIENTS = [];
-
-io.sockets.on("connection", function (client) {
-    util.log(client.id + " connected");
-    CONNECTED_CLIENTS.push(client);
-
-    client.on("disconnect", function () {
-        CONNECTED_CLIENTS = _.without(CONNECTED_CLIENTS, client);
-        util.log(client.id + " disconnected");
-    });
-});
-
-function updateClients() {
-    var clientsToNotify = _.clone(CONNECTED_CLIENTS);
-    async.forEach(
-        clientsToNotify,
-        function (client, done) {
-            util.log("emit to client " + client.id);
-            client.emit("current", JSON.stringify(CURRENT));
-            done();
-        },
-        function (err) {
-            if (typeof err !== "undefined" && err !== null) {
-                util.log(err);
-            } else {
-                util.log("done emitting data to all clients");
-            }
-        }
-    );
-}
-
-// ----------------------------------------------------------------------------
+onScrape();

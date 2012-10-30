@@ -1,7 +1,7 @@
 $(document).ready(function () {
     var host = "control.local";
     var port = 8080;
-    
+
     var sockjsUrl = '/data';
     var sockjs = new SockJS(sockjsUrl);
 
@@ -13,11 +13,11 @@ $(document).ready(function () {
         console.log('[*] close');
     };
 
-    function initialize() {
+    function initMap() {
         var myOptions = {
-            center:new google.maps.LatLng(53.867814, 10.687208),
-            zoom:14,
-            mapTypeId:google.maps.MapTypeId.ROADMAP
+            center: new google.maps.LatLng(53.867814, 10.687208),
+            zoom: 14,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         var map = new google.maps.Map(document.getElementById("map_canvas"),
             myOptions);
@@ -62,7 +62,7 @@ $(document).ready(function () {
     /* After the data is loaded once initially, the data is updated via web-socket */
     sockjs.onmessage = function (e) {
         console.log('[.] message' + JSON.stringify(e.data));
-        var dataObj = JSON.parse(data);
+        var dataObj = JSON.parse(e.data);
         if (typeof dataObj === "undefined" || dataObj === null) {
             return;
         }
@@ -70,16 +70,17 @@ $(document).ready(function () {
     };
 
     /* Initialize Google Map */
-    initialize();
+    initMap();
 
     /* Fetch data once initially */
-    $.ajax({
-        url:"http://" + host + ":" + port + "/json/current/",
-        method:"GET",
-        dataType:"json",
-        success:onData,
-        statusCode:{
-            404:onNoData
+    var settings = {
+        url: "http://" + host + ":" + port + "/json/current/",
+        method: "GET",
+        dataType: "json",
+        success: onData,
+        statusCode: {
+            404: onNoData
         }
-    });
+    };
+    $.ajax(settings);
 });

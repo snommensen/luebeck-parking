@@ -11,7 +11,7 @@ var JQUERY_URL = "http://code.jquery.com/jquery.min.js";
 exports.scrape = function (callback) {
     request(
         {
-            uri:SCRAPE_URL
+            uri: SCRAPE_URL
         },
         function (error, response, page) {
             if (typeof error !== "undefined" && error !== null) {
@@ -75,7 +75,7 @@ function parseParkings(window, callback) {
             if (typeof err !== "undefined" && err !== null) {
                 callback(err, null);
             }
-            callback(null, {"current":{"cities":cities, "parkings":parkings}});
+            callback(null, {"current": {"cities": cities, "parkings": parkings}});
         }
     );
 }

@@ -1,0 +1,12 @@
+{
+	"name": "luebeck-parking",
+	"version": "0.1",
+	"dependencies": {
+		"async": "0.1.22",
+		"express": "2.5.11",
+		"jsdom": "0.2.10",
+		"redis": "0.7.1",
+		"sockjs": "0.3.1",
+		"underscore": "1.3.3"								
+	}	 
+}

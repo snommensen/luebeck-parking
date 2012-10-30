@@ -15,32 +15,32 @@ $(function () {
     var parking = "Falkenstrasse"; // default
 
     var options = {
-        series:{
-            stack:true,
-            lines:{ show:true, fill:true },
-            points:{ show:false },
-            shadowSize:0
+        series: {
+            stack: true,
+            lines: { show: true, fill: true },
+            points: { show: false },
+            shadowSize: 0
         },
-        xaxis:{
-            mode:"time",
-            tickLength:5
+        xaxis: {
+            mode: "time",
+            tickLength: 5
         },
-        yaxis:{
-            min:0
+        yaxis: {
+            min: 0
         },
-        selection:{ mode:"x" },
-        grid:{ hoverable:true, clickable:true, markings:weekendAreas }
+        selection: { mode: "x" },
+        grid: { hoverable: true, clickable: true, markings: weekendAreas }
     };
 
     var smallOptions = {
-        series:{
-            lines:{ show:true, lineWidth:1, fill:true },
-            shadowSize:0,
-            stack:true
+        series: {
+            lines: { show: true, lineWidth: 1, fill: true },
+            shadowSize: 0,
+            stack: true
         },
-        xaxis:{ ticks:[], mode:"time" },
-        yaxis:{ ticks:[], min:0, autoscaleMargin:0.1 },
-        selection:{ mode:"x" }
+        xaxis: { ticks: [], mode: "time" },
+        yaxis: { ticks: [], min: 0, autoscaleMargin: 0.1 },
+        selection: { mode: "x" }
     };
 
     // Returns the weekends in a period
@@ -58,7 +58,7 @@ $(function () {
         do {
             // when we don"t set yaxis, the rectangle automatically
             // extends to infinity upwards and downwards
-            markings.push({ xaxis:{ from:time, to:time + 2 * 24 * 60 * 60 * 1000 } });
+            markings.push({ xaxis: { from: time, to: time + 2 * 24 * 60 * 60 * 1000 } });
             time += 7 * 24 * 60 * 60 * 1000;
         } while (time < axes.xaxis.max);
 
@@ -102,8 +102,8 @@ $(function () {
         plot = $.plot(
             $("#placeholder"),
             [
-                { data:occupancy, color:"rgb(200, 20, 30)" },
-                { data:total, color:"rgb(30, 180, 20)" }
+                { data: occupancy, color: "rgb(200, 20, 30)" },
+                { data: total, color: "rgb(30, 180, 20)" }
             ],
             options
         );
@@ -111,8 +111,8 @@ $(function () {
         smallPlot = $.plot(
             $("#overview"),
             [
-                { data:occupancy, color:"rgb(200, 20, 30)" },
-                { data:total, color:"rgb(30, 180, 20)" }
+                { data: occupancy, color: "rgb(200, 20, 30)" },
+                { data: total, color: "rgb(30, 180, 20)" }
             ],
             smallOptions
         );
@@ -122,11 +122,11 @@ $(function () {
             plot = $.plot(
                 $("#placeholder"),
                 [
-                    { data:occupancy, color:"rgb(200, 20, 30)" },
-                    { data:total, color:"rgb(30, 180, 20)" }
+                    { data: occupancy, color: "rgb(200, 20, 30)" },
+                    { data: total, color: "rgb(30, 180, 20)" }
                 ],
                 $.extend(true, {}, options, {
-                    xaxis:{ min:ranges.xaxis.from, max:ranges.xaxis.to }
+                    xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to }
                 }));
 
             // Don"t fire event on the overview to prevent eternal loop
@@ -171,14 +171,14 @@ $(function () {
     function showTooltip(x, y, contents) {
         //$("tooltip").twipsy({ html:"<div>" + contents + "</div>", animate:true });
         $("<div id=\"tooltip\">" + contents + "</div>").css({
-            position:"absolute",
-            display:"none",
-            top:y + 5,
-            left:x + 5,
-            border:"1px solid #fdd",
-            padding:"2px",
-            "background-color":"#fee",
-            opacity:0.80
+            position: "absolute",
+            display: "none",
+            top: y + 5,
+            left: x + 5,
+            border: "1px solid #fdd",
+            padding: "2px",
+            "background-color": "#fee",
+            opacity: 0.80
         }).appendTo("body").fadeIn(200);
     }
 
@@ -186,8 +186,8 @@ $(function () {
         plot = $.plot(
             $("#placeholder"),
             [
-                { data:[], color:"rgb(200, 20, 30)" },
-                { data:[], color:"rgb(30, 180, 20)" }
+                { data: [], color: "rgb(200, 20, 30)" },
+                { data: [], color: "rgb(30, 180, 20)" }
             ],
             options
         );
@@ -195,8 +195,8 @@ $(function () {
         smallPlot = $.plot(
             $("#overview"),
             [
-                { data:[], color:"rgb(200, 20, 30)" },
-                { data:[], color:"rgb(30, 180, 20)" }
+                { data: [], color: "rgb(200, 20, 30)" },
+                { data: [], color: "rgb(30, 180, 20)" }
             ],
             smallOptions
         );
@@ -225,15 +225,16 @@ $(function () {
 
         $("div.alert").remove();
 
-        $.ajax({
-            url:"http://" + host + ":" + port + "/json/history/" + p,
-            method:"GET",
-            dataType:"json",
-            success:onDataReceived,
-            statusCode:{
-                404:onNoDataRecieved
+        var settings = {
+            url: "http://" + host + ":" + port + "/json/history/" + p,
+            method: "GET",
+            dataType: "json",
+            success: onDataReceived,
+            statusCode: {
+                404: onNoDataRecieved
             }
-        });
+        };
+        $.ajax(settings);
     }
 
     loadParkingData(parking);

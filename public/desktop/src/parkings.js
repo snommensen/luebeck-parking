@@ -1,6 +1,6 @@
 $(document).ready(function () {
     var host = "control.local";
-    var port = 8080;
+    var port = 1337;
 
     var sockjsUrl = '/data';
     var sockjs = new SockJS(sockjsUrl);

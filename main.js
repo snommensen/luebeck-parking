@@ -14,7 +14,7 @@ function onScrape() {
     util.log("Scraping...");
     scraper.scrape(function (err, result) {
         if (typeof err !== "undefined" && err !== null) {
-            throw err;
+            util.log("" + err);
         }
         if (typeof result !== "undefined" && result !== null) {
             CURRENT = result;
@@ -58,14 +58,17 @@ setInterval(onHistory, historyDelay);
 
 // ----------------------------------------------------------------------------
 
+var http = require("http");
 var express = require("express");
+var app = express();
 var host = "0.0.0.0";
-var port = 8080;
-var app = express.createServer();
-
+var port = 1337;
+var server = http.createServer(app);
 var sockjs = require('sockjs');
 var sockjsServer = sockjs.createServer();
-sockjsServer.installHandlers(app, {prefix: '/data'});
+sockjsServer.installHandlers(server, {prefix:'/data'});
+console.log(' [*] Listening on ' + host + ':' + port );
+server.listen(port, host);
 
 /*
  * Manage web-socket connections.
@@ -79,15 +82,18 @@ sockjsServer.on('connection', function (connection) {
     });
 });
 
-
 function updateClients() {
     var clientsToNotify = _.clone(CONNECTED_CLIENTS);
     async.forEach(
         clientsToNotify,
         function (client, done) {
             util.log("emit to client " + client.id);
-            client.write(JSON.stringify(CURRENT));
-            done();
+            try {
+                client.write(JSON.stringify(CURRENT));
+            } catch (err) {
+                done(err);
+            }
+            done(null);
         },
         function (err) {
             if (typeof err !== "undefined" && err !== null) {
@@ -159,8 +165,5 @@ app.get("/json/history/:name", function (req, res) {
         console.timeEnd("Delivered: /json/history/" + name);
     });
 });
-
-app.listen(port, host);
-console.log(' [*] Listening on ' + host + ':' + port);
 
 onScrape();

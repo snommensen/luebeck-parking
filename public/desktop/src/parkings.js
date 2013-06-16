@@ -1,7 +1,4 @@
 $(document).ready(function () {
-    var host = "control.local";
-    var port = 1337;
-
     var sockjsUrl = '/data';
     var sockjs = new SockJS(sockjsUrl);
 
@@ -41,9 +38,9 @@ $(document).ready(function () {
             return;
         }
         parkings = current.parkings;
-
-        $('#parkings').empty();
-        $('#parkings').append('<li class="nav-header">PARKPL&Auml;TZE</li>');
+        var $parkings = $('#parkings');
+        $($parkings).empty();
+        $($parkings).append('<li class="nav-header">PARKPL&Auml;TZE</li>');
 
         for (i = 0; i < parkings.length; i += 1) {
             $('#parkings').append('<li><a href="#">'
@@ -56,7 +53,7 @@ $(document).ready(function () {
     }
 
     function onNoData() {
-        console.log("Error fetching data from host: " + host);
+        console.log("Error fetching data!");
     }
 
     /* After the data is loaded once initially, the data is updated via web-socket */
@@ -73,14 +70,7 @@ $(document).ready(function () {
     initMap();
 
     /* Fetch data once initially */
-    var settings = {
-        url: "http://" + host + ":" + port + "/json/current/",
-        method: "GET",
-        dataType: "json",
-        success: onData,
-        statusCode: {
-            404: onNoData
-        }
-    };
-    $.ajax(settings);
+    $.get("/json/current/")
+        .done(onData)
+        .fail(onNoData);
 });

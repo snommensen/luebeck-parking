@@ -1,7 +1,17 @@
 $(document).ready(function () {
     var host = "control.local";
-    var port = 8080;
-    var socket = io.connect(host + ":" + port);
+    var port = 1337;
+	
+    var sockjsUrl = '/data';
+    var sockjs = new SockJS(sockjsUrl);
+
+    sockjs.onopen = function () {
+        console.log('[*] open' + JSON.stringify(sockjs.protocol));
+    };
+	
+    sockjs.onclose = function () {
+        console.log('[*] close');
+    };	
 
     function calculateOccupation(parking) {
         return Math.floor(100 - ((parking.free * 100) / parking.spaces));
@@ -31,19 +41,17 @@ $(document).ready(function () {
     function onNoData() {
         console.log("Error fetching data from host: " + host);
     }
-
-    socket.on("connect", function () {
-        console.log("Connected to: " + host);
-    });
-
-    /* After the data is loaded once initially, the data is updated via socket.io */
-    socket.on("current", function (data) {
-        var dataObj = JSON.parse(data);
+	
+    /* After the data is loaded once initially, the data is updated via web-socket */
+    sockjs.onmessage = function (e) {
+        console.log('[.] message' + JSON.stringify(e.data));
+        var dataObj = JSON.parse(e.data);
         if (typeof dataObj === "undefined" || dataObj === null) {
             return;
         }
         onData(dataObj);
-    });
+    };	
+	
 
     /* Fetch data once initially */
     $.ajax({

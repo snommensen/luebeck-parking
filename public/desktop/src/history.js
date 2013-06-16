@@ -1,8 +1,4 @@
 $(function () {
-    //var host = "enterprise-it.corona.itm.uni-luebeck.de";
-    var host = "control.local";
-    var port = 8080;
-
     var occupancy = [];
     var total = [];
     var spaces = 0;
@@ -225,16 +221,9 @@ $(function () {
 
         $("div.alert").remove();
 
-        var settings = {
-            url: "http://" + host + ":" + port + "/json/history/" + p,
-            method: "GET",
-            dataType: "json",
-            success: onDataReceived,
-            statusCode: {
-                404: onNoDataRecieved
-            }
-        };
-        $.ajax(settings);
+        $.get("/json/history/" + p)
+            .done(onDataReceived)
+            .fail(onNoDataRecieved);
     }
 
     loadParkingData(parking);

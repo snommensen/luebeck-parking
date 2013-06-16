@@ -9,13 +9,10 @@ var SCRAPE_URL = "http://kwlpls.adiwidjaja.com/index.php";
 var JQUERY_URL = "http://code.jquery.com/jquery.min.js";
 
 exports.scrape = function (callback) {
-    request(
-        {
-            uri: SCRAPE_URL
-        },
+    request({ uri: SCRAPE_URL },
         function (error, response, page) {
             if (typeof error !== "undefined" && error !== null) {
-                throw error;
+                util.log("" + error);
             }
 
             if (response.statusCode !== 200) {
@@ -23,7 +20,7 @@ exports.scrape = function (callback) {
             } else {
                 jsdom.env(page, [JQUERY_URL], function (err, window) {
                     if (typeof err !== "undefined" && err !== null) {
-                        throw err;
+                        util.log("" + err);
                     }
                     parseParkings(window, callback);
                 });
@@ -49,27 +46,29 @@ function parseParkings(window, callback) {
                 tmpCityName = $($tmpThs).text().split(" ")[1];
                 cities.push(tmpCityName);
                 done();
-            }
+            } else {
+                var tmpParking = {};
+                var tmpText = $($tmpTds).eq(0).html();
+                var tmpPrefix = tmpText.substring(0, 2);
 
-            var tmpParking = {};
-            var tmpText = $($tmpTds).eq(0).html();
-            var tmpPrefix = tmpText.substring(0, 2);
+                if (tmpPrefix === "PP" || tmpPrefix === "PH") {
+                    tmpParking.kind = tmpPrefix;
+                    tmpParking.name = tmpText.substring(3);
 
-            if (tmpPrefix === "PP" || tmpPrefix === "PH") {
-                tmpParking.kind = tmpPrefix;
-                tmpParking.name = tmpText.substring(3);
-
-                if ($($tmpTds).size() > 2) {
-                    tmpParking.spaces = $($tmpTds).eq(1).html();
-                    tmpParking.free = $($tmpTds).eq(2).html();
+                    if ($($tmpTds).size() > 2) {
+                        tmpParking.spaces = $($tmpTds).eq(1).html();
+                        tmpParking.free = $($tmpTds).eq(2).html();
+                        tmpParking.status = "open";
+                    }
                     tmpParking.status = "open";
-                } else if ($($tmpTds).size() > 0) {
-                    tmpParking.status = "closed";
+//                else if ($($tmpTds).size() > 0) {
+//                    tmpParking.status = "closed";
+//                }
+                    tmpParking.geo = geo.data[tmpParking.name];
+                    parkings.push(tmpParking);
                 }
-                tmpParking.geo = geo.data[tmpParking.name];
-                parkings.push(tmpParking);
+                done();
             }
-            done();
         },
         function (err) {
             if (typeof err !== "undefined" && err !== null) {

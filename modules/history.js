@@ -54,6 +54,7 @@ exports.storeHistory = function (parkings, callback) {
 };
 
 function storeHistoryItem(parking, timestamp, callback) {
+    util.log("storeHistoryItem( " + JSON.stringify(parking) + " )");
     var parkingKey;
 
     if (typeof parking === "undefined" || parking === null) {
@@ -100,6 +101,7 @@ function storeHistoryItem(parking, timestamp, callback) {
                 if (typeof err !== "undefined" && err !== null) {
                     callback("Error setting timeline attributes: " + err);
                 }
+                util.log("Saved timeline entry: " + JSON.stringify(timelineKeyWithTimestamp));
                 callback(null);
             });
         });
@@ -107,49 +109,55 @@ function storeHistoryItem(parking, timestamp, callback) {
 }
 
 exports.findTimelineByName = function (name, callback) {
-    var result = [],
-        twoWeeks = 672;
+    var result = [];
 
     /* Get parking with all attributes */
     redisClient.hgetall(createParkingKey(name), function (err, parking) {
         if (typeof err !== "undefined" && err !== null) {
             util.log("Error fetching parking for key: " + createParkingKey(name) + ", Cause: " + err);
-        }
-
-        if (typeof parking === "undefined"
-            || parking === null
-            || !parking.hasOwnProperty("timeline")
-            || !parking.hasOwnProperty("spaces")) {
             callback([], 0);
         } else {
-            /* List this parking's timeline entries for the last two weeks */
-            redisClient.lrange(parking.timeline, twoWeeks * -1, -1, function (err, timelines) {
-                if (typeof err !== "undefined" && err !== null) {
-                    // TODO Use callback(err);
-                    util.log(err);
-                }
-
-                /* Iterate this parking's timelines and collect attributes in result array */
-                async.forEach(
-                    timelines,
-                    function (timelineKey, done) {
-                        util.log("HGETALL " + timelineKey);
-                        redisClient.hgetall(timelineKey, function (err, timelineAttributes) {
-                            if (typeof err !== "undefined" && err !== null) {
-                                done(err);
-                            }
-                            result.push(timelineAttributes);
-                            done(null);
-                        });
-                    },
-                    function (err) {
-                        if (typeof err !== "undefined" && err !== null) {
-                            util.log("Error fetching parking timelines: " + err);
-                        }
-                        callback(result, parking.spaces);
+            if (typeof parking === "undefined"
+                || parking === null
+                || !parking.hasOwnProperty("timeline")
+                || !parking.hasOwnProperty("spaces")) {
+                callback([], 0);
+            } else {
+                /* List this parking's timeline entries for the last two weeks */
+                redisClient.lrange(parking.timeline, 0, -1, function (err, timelines) {
+                    if (typeof err !== "undefined" && err !== null) {
+                        // TODO Use callback(err);
+                        util.log(err);
                     }
-                );
-            });
+
+                    /* Iterate this parking's timelines and collect attributes in result array */
+                    async.forEach(
+                        timelines,
+                        function (timelineKey, done) {
+                            util.log("HGETALL " + timelineKey);
+                            redisClient.hgetall(timelineKey, function (err, timelineAttributes) {
+                                if (typeof err !== "undefined" && err !== null) {
+                                    done(err);
+                                }
+                                if (timelineAttributes && timelineAttributes.hasOwnProperty("timestamp")) {
+                                    var twoWeeksMillis = 1000 * 60 * 60 * 24 * 14;
+                                    var currentMillis = new Date().getTime();
+                                    if (timelineAttributes.timestamp > (currentMillis - twoWeeksMillis)) {
+                                        result.push(timelineAttributes);
+                                    }
+                                }
+                                done(null);
+                            });
+                        },
+                        function (err) {
+                            if (typeof err !== "undefined" && err !== null) {
+                                util.log("Error fetching parking timelines: " + err);
+                            }
+                            callback(result, parking.spaces);
+                        }
+                    );
+                });
+            }
         }
     });
 };

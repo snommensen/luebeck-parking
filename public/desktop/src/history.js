@@ -39,6 +39,8 @@ $(function () {
         selection: { mode: "x" }
     };
 
+    var $placeholder = $("#placeholder");
+
     // Returns the weekends in a period
     function weekendAreas(axes) {
         var markings = [];
@@ -62,8 +64,9 @@ $(function () {
     }
 
     function onDataReceived(parkingData) {
-        if ($("#tooltip")) {
-            $("#tooltip").remove();
+        var $tooltip = $("#tooltip");
+        if ($($tooltip)) {
+            $($tooltip).remove();
         }
 
         //if (console && console.log) console.log(JSON.stringify(parkingData));
@@ -93,10 +96,10 @@ $(function () {
         for (j = 0; j < total.length; j += 1) {
             total[j][0] += 60 * 60 * 1000;
         }
-
+        
         // and plot all we got
         plot = $.plot(
-            $("#placeholder"),
+            $($placeholder),
             [
                 { data: occupancy, color: "rgb(200, 20, 30)" },
                 { data: total, color: "rgb(30, 180, 20)" }
@@ -104,8 +107,9 @@ $(function () {
             options
         );
 
+        var $overview = $("#overview");
         smallPlot = $.plot(
-            $("#overview"),
+            $($overview),
             [
                 { data: occupancy, color: "rgb(200, 20, 30)" },
                 { data: total, color: "rgb(30, 180, 20)" }
@@ -113,10 +117,10 @@ $(function () {
             smallOptions
         );
 
-        $("#placeholder").bind("plotselected", function (event, ranges) {
+        $($placeholder).bind("plotselected", function (event, ranges) {
             // do the zooming
             plot = $.plot(
-                $("#placeholder"),
+                $($placeholder),
                 [
                     { data: occupancy, color: "rgb(200, 20, 30)" },
                     { data: total, color: "rgb(30, 180, 20)" }
@@ -131,7 +135,7 @@ $(function () {
 
         var previousPoint = null;
 
-        $("#placeholder").bind("plothover", function (event, pos, item) {
+        $($placeholder).bind("plothover", function (event, pos, item) {
             $("#x").text(pos.x.toFixed(2));
             $("#y").text(pos.y.toFixed(2));
 
@@ -159,7 +163,7 @@ $(function () {
             }
         });
 
-        $("#overview").bind("plotselected", function (event, ranges) {
+        $($overview).bind("plotselected", function (event, ranges) {
             plot.setSelection(ranges);
         });
     }
@@ -180,7 +184,7 @@ $(function () {
 
     function onNoDataRecieved() {
         plot = $.plot(
-            $("#placeholder"),
+            $($placeholder),
             [
                 { data: [], color: "rgb(200, 20, 30)" },
                 { data: [], color: "rgb(30, 180, 20)" }
@@ -221,6 +225,7 @@ $(function () {
 
         $("div.alert").remove();
 
+        console.log("GET /json/history/" + p);
         $.get("/json/history/" + p)
             .done(onDataReceived)
             .fail(onNoDataRecieved);

@@ -10,7 +10,7 @@ var history = require(path.join(__dirname, modules_dir, "history"));
 
 var CURRENT = {"current": {"cities": [], "parkings": []}};
 
-function onScrape() {
+function onScrape(callback) {
     util.log("Scraping...");
     scraper.scrape(function (err, result) {
         if (typeof err !== "undefined" && err !== null) {
@@ -28,6 +28,7 @@ function onScrape() {
             util.log("#" + CURRENT.current.parkings.length + " parkings returned.");
             // Send data to connected clients via web-socket
             updateClients();
+            if (callback && typeof callback === "function") callback();
         }
     });
 }
@@ -43,6 +44,7 @@ function onHistory() {
     }
     util.log("Storing history data...");
     parkings = CURRENT.current.parkings;
+    util.log(JSON.stringify(CURRENT.current.parkings));
     if (typeof parkings !== "undefined" && parkings !== null) {
         history.storeHistory(parkings, function () {
             util.log("#" + parkings.length + " parkings historized.");
@@ -53,7 +55,7 @@ function onHistory() {
 var scrapeDelay = 2 * 60 * 1000;
 setInterval(onScrape, scrapeDelay);
 
-var historyDelay = 30 * 60 * 1000;
+var historyDelay = 20 * 60 * 1000;
 setInterval(onHistory, historyDelay);
 
 // ----------------------------------------------------------------------------
@@ -66,8 +68,8 @@ var port = 1337;
 var server = http.createServer(app);
 var sockjs = require('sockjs');
 var sockjsServer = sockjs.createServer();
-sockjsServer.installHandlers(server, {prefix:'/data'});
-console.log(' [*] Listening on ' + host + ':' + port );
+sockjsServer.installHandlers(server, {prefix: '/data'});
+console.log(' [*] Listening on ' + host + ':' + port);
 server.listen(port, host);
 
 /*
@@ -108,18 +110,10 @@ function updateClients() {
 // ----------------------------------------------------------------------------
 
 app.configure(function () {
-    app.use(express.methodOverride());
-    app.use(express.bodyParser());
     app.use(app.router);
     app.use(express.static(__dirname + "/public"));
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
-
-//app.configure("production", function () {
-//    var oneYear = 31557600000;
-//    app.use(express.static(__dirname + "/public", { maxAge:oneYear }));
-//    app.use(express.errorHandler());
-//});
 
 /**
  * Route mobile devices to the mobile page and "normal" browsers to the desktop page.
@@ -166,4 +160,4 @@ app.get("/json/history/:name", function (req, res) {
     });
 });
 
-onScrape();
+onScrape(onHistory);
